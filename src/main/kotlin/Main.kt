@@ -1,6 +1,12 @@
 import kotlin.math.max
 import kotlin.math.min
 
+data class Interval(var first: Int, var second: Int) {
+    override fun toString(): String {
+        return "[$first, $second]"
+    }
+}
+
 fun main(args: Array<String>) {
 
     println("Merge Intervals #1 --------------------------------------")
@@ -14,6 +20,26 @@ fun main(args: Array<String>) {
     println("[[1,4], [2,6], [3,5]]")
     println("Expected: [[1,6]] , actual: ${mergeIntervals(listOfPairs)}")
 
+
+    println("Merge Intervals #1.2 --------------------------------------")
+    listOfPairs = listOf(Pair(1,4), Pair(2,5), Pair(7,9))
+    println("[[1,4], [2,5], [7,9]]")
+    println("Expected: true , actual: ${doesOverlap(listOfPairs)}")
+    listOfPairs = listOf(Pair(1,2), Pair(7,9), Pair(3,5))
+    println("[[1,2], [3,5], [7,9]]")
+    println("Expected: false , actual: ${doesOverlap(listOfPairs)}")
+
+    println("Merge Intervals #2.1 --------------------------------------")
+    var listOfIntervals = listOf(Interval(1,3), Interval(5,7), Interval(8,12))
+    println("[[1,3], [5,7], [8,12]], New Interval=[4,6]")
+    println("Expected: [[1,3], [4,7], [8,12]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(4,6))}")
+    listOfIntervals = listOf(Interval(1,3), Interval(5,7), Interval(8,12))
+    println("[[1,3], [5,7], [8,12]], New Interval=[4,10]")
+    println("Expected: [[1,3], [4,12]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(4,10))}")
+    listOfIntervals = listOf(Interval(2,3), Interval(5,7))
+    println("[[2,3],[5,7]], New Interval=[1,4]")
+    println("Expected: [[1,4], [5,7]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(1,4))}")
+
     var arr1 = listOf(Interval(1,3), Interval(5,6), Interval(7,9))
     var arr2 = listOf(Interval(2,3), Interval(5,7))
     println("Merge Intervals #3.1 --------------------------------------")
@@ -23,8 +49,40 @@ fun main(args: Array<String>) {
     arr2 = listOf(Interval(5,7), Interval(9,10))
     println("arr1=[[1, 3], [5, 7], [9, 12]], arr2=[[5, 10]]")
     println("Expected: [5, 7], [9, 10] , actual: ${findCommonIntervals(arr1, arr2)}")
+
+    println("Merge Intervals #4.1 Conflicting Appts--------------------------------------")
+    listOfIntervals = listOf(Interval(1,4), Interval(2,5), Interval(7,9))
+    println("[[1,4], [2,5], [7,9]]")
+    println("Expected: false , actual: ${canAttend(listOfIntervals)}")
+    listOfIntervals = listOf(Interval(6,7), Interval(2,4), Interval(8,12))
+    println("[[6,7], [2,4], [8,12]]")
+    println("Expected: true , actual: ${canAttend(listOfIntervals)}")
+    listOfIntervals = listOf(Interval(4,5), Interval(2,3), Interval(3,6))
+    println("[[4,5], [2,3], [3,6]]")
+    println("Expected: false , actual: ${canAttend(listOfIntervals)}")
 }
 
+/*
+    canAttend takes in a list of unsorted intervals,
+        returns a boolean of if any overlap
+ */
+fun canAttend(intervals: List<Interval>): Boolean {
+    if(intervals.size < 2) return true
+
+    val sortedList = intervals.sortedBy { it.first }
+    var index = 1
+    var a = sortedList.first() // 3,6
+    while(index < sortedList.size) {
+        var b = sortedList[index] // 4,5
+        if(b.first < a.second) {
+            // over lap
+            return false
+        }
+        a = b
+        index++
+    }
+    return true
+}
 /*
     findCommonIntervals takes in 2 lists of intervals, each sorted by interval start
         returns list of intervals which overlap both input lists
@@ -50,7 +108,6 @@ fun findCommonIntervals(arr1: List<Interval>, arr2: List<Interval>): MutableList
             //overlap
             newInterval.first = max(a.first, b.first)
             newInterval.second = min(a.second, b.second)
-            println("adding $newInterval")
             result.add(newInterval)
         }
         if(a.second < b.second) index1++
@@ -100,7 +157,7 @@ fun addInterval(intervals: MutableList<Interval>, newInterval: Interval): Mutabl
     }
     return intervals
 }
-data class Interval(var first: Int, var second: Int)
+
 /*
     mergeIntervals takes in a list of Pairs.
        Each pair represents the start and end of an interval
