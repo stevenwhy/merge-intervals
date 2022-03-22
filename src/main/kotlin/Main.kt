@@ -14,25 +14,54 @@ fun main(args: Array<String>) {
     println("[[1,4], [2,6], [3,5]]")
     println("Expected: [[1,6]] , actual: ${mergeIntervals(listOfPairs)}")
 
-    listOfPairs = listOf(Pair(1,4), Pair(2,5), Pair(7,9))
-    println("Merge Intervals #1.2 --------------------------------------")
-    println("[[1,4], [2,5], [7,9]]")
-    println("Expected: true , actual: ${doesOverlap(listOfPairs)}")
-    listOfPairs = listOf(Pair(1,2), Pair(7,9), Pair(3,5))
-    println("Merge Intervals #1.2")
-    println("[[1,2], [3,5], [7,9]]")
-    println("Expected: false , actual: ${doesOverlap(listOfPairs)}")
+    var arr1 = listOf(Interval(1,3), Interval(5,6), Interval(7,9))
+    var arr2 = listOf(Interval(2,3), Interval(5,7))
+    println("Merge Intervals #3.1 --------------------------------------")
+    println("arr1=[[1, 3], [5, 6], [7, 9]], arr2=[[2, 3], [5, 7]]")
+    println("Expected: [2, 3], [5, 6], [7, 7] , actual: ${findCommonIntervals(arr1, arr2)}")
+    arr1 = listOf(Interval(1,3), Interval(5,7), Interval(9,12))
+    arr2 = listOf(Interval(5,7), Interval(9,10))
+    println("arr1=[[1, 3], [5, 7], [9, 12]], arr2=[[5, 10]]")
+    println("Expected: [5, 7], [9, 10] , actual: ${findCommonIntervals(arr1, arr2)}")
+}
 
-    println("Merge Intervals #2.1 --------------------------------------")
-    var listOfIntervals = listOf(Interval(1,3), Interval(5,7), Interval(8,12))
-    println("[[1,3], [5,7], [8,12]], New Interval=[4,6]")
-    println("Expected: [[1,3], [4,7], [8,12]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(4,6))}")
-    listOfIntervals = listOf(Interval(1,3), Interval(5,7), Interval(8,12))
-    println("[[1,3], [5,7], [8,12]], New Interval=[4,10]")
-    println("Expected: [[1,3], [4,12]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(4,10))}")
-    listOfIntervals = listOf(Interval(2,3), Interval(5,7))
-    println("[[2,3],[5,7]], New Interval=[1,4]")
-    println("Expected: [[1,4], [5,7]] , actual: ${addInterval(listOfIntervals.toMutableList(), Interval(1,4))}")
+/*
+    findCommonIntervals takes in 2 lists of intervals, each sorted by interval start
+        returns list of intervals which overlap both input lists
+ */
+fun findCommonIntervals(arr1: List<Interval>, arr2: List<Interval>): MutableList<Interval> {
+    val result = mutableListOf<Interval>()
+    var index1 = 0
+    var index2 = 0
+
+    while(index1 < arr1.size && index2 < arr2.size) {
+        var a = arr1[index1] // 1,3
+        var b = arr2[index2] // 5,10
+        var newInterval = Interval(0,0)
+        if(b.second < a.first) {
+            //no overlap b before a
+            index2++
+            continue
+        } else if (a.second < b.first) {
+            //no overlap a before b
+            index1++
+            continue
+        } else {
+            //overlap
+            newInterval.first = max(a.first, b.first)
+            newInterval.second = min(a.second, b.second)
+            println("adding $newInterval")
+            result.add(newInterval)
+        }
+        if(a.second < b.second) index1++
+        if(b.second < a.second) index2++
+        if(a.second == b.second) {
+            index1++
+            index2++
+        }
+
+    }
+    return result
 }
 
 /*
