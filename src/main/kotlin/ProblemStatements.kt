@@ -32,6 +32,55 @@ fun main() {
     listOfTriples = listOf(Triple(1,4,2), Triple(2,4,1), Triple(3,6,5))
     println("[[1,4,2], [2,4,1], [3,6,5]]")
     println("Expected: 8 , actual: ${maxCPU(listOfTriples)}")
+
+
+    println("${findFreeTime(listOf(listOf(Pair(1,3),Pair(5,6)), listOf(Pair(2,3),Pair(6,8))))} expected [3,5]")
+    println("${findFreeTime(listOf(listOf(Pair(1,3),Pair(9,12)), listOf(Pair(2,4),Pair(6,8))))} expected [4,6], [8,9]")
+    println("${findFreeTime(listOf(listOf(Pair(1,3),Pair(2,4)), listOf(Pair(3,5),Pair(7,9))))} expected [5,7]")
+}
+
+
+/*
+    For ‘K’ employees, we are given a list of intervals representing the working hours of each employee.
+    Our goal is to find out if there is a free interval that is common to all employees.
+    You can assume that each list of employee working hours is sorted on the start time.
+    Input: Employee Working Hours=[ [[1,3], [5,6]], [[2,3], [6,8]] ]
+    Output: [3,5]
+
+    Here we can merge all the overlapping intervals.
+    [1,3], [2,3], [5,6], [6,8]
+
+     0 1 2 3 4 5 6 7 8 9 10 11 12
+     0 1 2 2 0 1 2 1 1 0  0  0 0
+ */
+fun findFreeTime(list: List<List<Pair<Int,Int>>>): MutableList<Pair<Int,Int>> {
+
+    val flatList = list.flatten()
+    val buckets = Array(flatList.maxOf { it.second }) { 0 }
+    val result = mutableListOf<Pair<Int,Int>>()
+    for(interval in flatList) {
+        for(i in interval.first until interval.second) {
+            buckets[i-1]++
+        }
+    }
+
+    var leftPointer = 0
+    while(leftPointer < buckets.size-1) {
+        val leftSide = buckets[leftPointer]
+        var rightPointer = leftPointer+1
+        if(leftSide == 0) {
+            leftPointer++
+            continue
+        } else if(buckets[rightPointer] == 0) {
+            while(rightPointer < buckets.size && buckets[rightPointer] == 0) {
+                rightPointer++
+            }
+            if(rightPointer < buckets.size) result.add(Pair(leftPointer+2, rightPointer+1))
+            leftPointer = rightPointer
+        }
+        leftPointer++
+    }
+    return result
 }
 
 /*
